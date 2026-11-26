@@ -5,9 +5,11 @@ public class TaskServiceTest {
     @Test
     public void createTaskNullTitle(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         int initialSize = r.getAllTasks().size();
         assertThrows(IllegalArgumentException.class, () -> {
             t.createTask(null, null, p, u);
@@ -17,8 +19,10 @@ public class TaskServiceTest {
     @Test
     public void createTaskNullProject(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         int initialSize = r.getAllTasks().size();
         assertThrows(IllegalArgumentException.class, () -> {
             t.createTask("Finish coding", "desc", null, u);
@@ -28,9 +32,11 @@ public class TaskServiceTest {
     @Test
     public void createTaskBlankTitle(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         int initialSize = r.getAllTasks().size();
         assertThrows(IllegalArgumentException.class, () -> {
             t.createTask("", null, p, u);
@@ -40,9 +46,11 @@ public class TaskServiceTest {
     @Test
     public void createTaskWhitespaceTitle(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         int initialSize = r.getAllTasks().size();
         assertThrows(IllegalArgumentException.class, () -> {
             t.createTask(" ", null, p, u);
@@ -50,11 +58,13 @@ public class TaskServiceTest {
         assertEquals(initialSize, r.getAllTasks().size());
     }
     @Test
-    public void createTaskSuccessfullyNonNullUser(){
+    public void createTaskSuccessfullyNonNullUserExistsInRepository(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         int initialSize = r.getAllTasks().size();
         Task newTask = t.createTask("Set up project", null, p, u);
         assertEquals((initialSize+1), r.getAllTasks().size());
@@ -68,7 +78,8 @@ public class TaskServiceTest {
     @Test
     public void createTaskSuccessfullyWithNullUser(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = null;
         int initialSize = r.getAllTasks().size();
@@ -84,7 +95,8 @@ public class TaskServiceTest {
     @Test
     public void successfulTaskRetrieval(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         Task newTask = t.createTask("Set up project", null, p, null);
         Task retrievedTask = t.retrieveTask(newTask.getId());
@@ -93,7 +105,8 @@ public class TaskServiceTest {
     @Test
     public void retrieveNonexistentTask(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         assertThrows(IllegalStateException.class, () -> {
             t.retrieveTask(0);
         });
@@ -101,9 +114,11 @@ public class TaskServiceTest {
     @Test
     public void assigningNonexistentTask(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         Task task = new Task("Develop app", "desc", p, u);
         assertThrows(IllegalStateException.class, () -> {
             t.assignTask(u, task.getId());
@@ -112,9 +127,11 @@ public class TaskServiceTest {
     @Test
     public void assignToSameUser(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         Task task = t.createTask("task", "desc", p, u);
         t.assignTask(u, task.getId());
         assertSame(u, task.getUser());
@@ -122,10 +139,13 @@ public class TaskServiceTest {
     @Test
     public void assignToDifferentUser(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
         User u1 = new User("Abby", "abby@yahoo.com");
+        userRepo.saveUser(u);
+        userRepo.saveUser(u1);
         Task task = t.createTask("task", "desc", p, u);
         t.assignTask(u1, task.getId());
         assertSame(u1, task.getUser());
@@ -133,9 +153,11 @@ public class TaskServiceTest {
     @Test
     public void assignToUserFirstTime(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         Task task = t.createTask("task", "desc", p, null);
         t.assignTask(u, task.getId());
         assertSame(u, task.getUser());
@@ -143,7 +165,8 @@ public class TaskServiceTest {
     @Test
     public void removeNonExistentAssignment(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         Task task = t.createTask("Develop app", "desc", p, null);
         assertThrows(IllegalStateException.class, () -> {
@@ -153,9 +176,11 @@ public class TaskServiceTest {
     @Test
     public void removeAssignmentForNonexistentTask(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         Task task = new Task("Develop app", "desc", p, u);
         assertThrows(IllegalStateException.class, () -> {
             t.removeAssignment(task.getId());
@@ -164,9 +189,11 @@ public class TaskServiceTest {
     @Test
     public void removeAssignmentSuccessfully(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         Task task = t.createTask("task", "desc", p, u);
         assertNotNull(task.getUser());
         t.removeAssignment(task.getId());
@@ -175,9 +202,11 @@ public class TaskServiceTest {
     @Test
     public void assignTaskToNullUser(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         Task task = t.createTask("task", "desc", p, u);
         assertThrows(IllegalArgumentException.class, () -> {
             t.assignTask(null, task.getId());
@@ -187,9 +216,11 @@ public class TaskServiceTest {
     @Test
     public void changeTaskStatusSuccessfully(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         Task task = t.createTask("task", "desc", p, u);
         TaskStatus previousStatus = task.getStatus();
         assertEquals(TaskStatus.TODO, previousStatus);
@@ -199,9 +230,11 @@ public class TaskServiceTest {
     @Test
     public void changeToSameTaskStatusSuccessfully(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         Task task = t.createTask("task", "desc", p, u);
         TaskStatus previousStatus = task.getStatus();
         t.updateStatus(task.getId(), previousStatus);
@@ -210,9 +243,11 @@ public class TaskServiceTest {
     @Test
     public void updateStatusOfNonexistentTaskThrowsError(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         Task task = new Task("Develop app", "desc", p, u);
         TaskStatus previousStatus = task.getStatus();
         assertThrows(IllegalStateException.class, () ->{
@@ -223,9 +258,11 @@ public class TaskServiceTest {
     @Test
     public void updateStatusToNullThrowsError(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         Task task = t.createTask("task", "desc", p, u);
         TaskStatus previousStatus = task.getStatus();
         assertThrows(IllegalArgumentException.class, () -> {
@@ -236,9 +273,11 @@ public class TaskServiceTest {
     @Test
     public void deleteTaskSuccessfully(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         Task task = t.createTask("task", "desc", p, u);
         assertSame(task, t.retrieveTask(task.getId()));
         int initialSize = r.getAllTasks().size();
@@ -251,9 +290,11 @@ public class TaskServiceTest {
     @Test
     public void deleteNonexistentTaskFails(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p = new Project("Coding Project", "coding practice");
         User u = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u);
         Task task = new Task("Develop app", "desc", p, u);
         assertThrows(IllegalStateException.class, () -> {
             t.deleteTask(task.getId());
@@ -262,17 +303,76 @@ public class TaskServiceTest {
     @Test
     public void deletingOneTaskDoesNotAffectOtherTasks(){
         TaskRepository r = new TaskRepository();
-        TaskService t = new TaskService(r);
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
         Project p1 = new Project("Coding Project", "coding practice");
         User u1 = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u1);
         Task task1 = t.createTask("Jimmy's task", "jimmyyyy", p1, u1);
         Project p2 = new Project("Homework", "homework");
         User u2 = new User("Abby", "abby@gmail.com");
+        userRepo.saveUser(u2);
         Task task2 = t.createTask("Abby's Task", "abbyyyy", p2, u2);
         t.deleteTask(task2.getId());
         assertThrows(IllegalStateException.class, () -> {
             t.retrieveTask(task2.getId());
         });
         assertSame(task1, t.retrieveTask(task1.getId()));
+    }
+    @Test
+    public void createTaskFailsBecauseUserNotInRepo(){
+        TaskRepository r = new TaskRepository();
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
+        Project p1 = new Project("Coding Project", "coding practice");
+        User u1 = new User("Jimmy", "jimmy@gmail.com");
+        int initialSize = r.getAllTasks().size();
+        assertThrows(IllegalStateException.class, () -> {
+            t.createTask("create task", null, p1, u1);
+        });
+        assertEquals(initialSize, r.getAllTasks().size());
+    }
+    @Test
+    public void assignTaskFailsBecauseUserNotInRepo(){
+        TaskRepository r = new TaskRepository();
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
+        Project p1 = new Project("Coding Project", "coding practice");
+        User u1 = new User("Jimmy", "jimmy@gmail.com");
+        userRepo.saveUser(u1);
+        Task task = t.createTask("task", "desc", p1, u1);
+        User u2 = new User("John", "john@gmail.com");
+        assertThrows(IllegalStateException.class, () -> {
+            t.assignTask(u2, task.getId());
+        });
+        assertSame(u1, task.getUser());
+    }
+    @Test
+    public void constructorNullTaskRepoValidation(){
+        TaskRepository r = null;
+        UserRepository userRepo = new UserRepository();
+        assertThrows(IllegalArgumentException.class, () -> {
+            new TaskService(r, userRepo);
+        });
+    }
+    @Test
+    public void constructorNullUserRepoValidation(){
+        TaskRepository r = new TaskRepository();
+        UserRepository userRepo = null;
+        assertThrows(IllegalArgumentException.class, () -> {
+            new TaskService(r, userRepo);
+        });
+    }
+    @Test
+    public void taskAndUserAreInvalidForAssignTask(){
+        TaskRepository r = new TaskRepository();
+        UserRepository userRepo = new UserRepository();
+        TaskService t = new TaskService(r, userRepo);
+        Project p1 = new Project("Coding Project", "coding practice");
+        User u1 = new User("Jimmy", "jimmy@gmail.com");
+        Task t1 = new Task("task", null, p1, u1);
+        assertThrows(IllegalStateException.class, () -> {
+            t.assignTask(u1, t1.getId());
+        });
     }
 }
